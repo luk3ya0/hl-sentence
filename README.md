@@ -2,7 +2,21 @@
 
 Highlight sentences in Emacs with a custom face.  Very nice.
 
-![preview](https://github.com/milkypostman/screenshots/raw/master/hl-sentence.png)
+I make filter funtion to get target element highlight.
+
+``` emacs-lisp
+(defun plainp ()
+  "Check current sentence is paragraph and it's parent is section."
+  (and
+   (eq (org-element-type (org-element-at-point)) 'paragraph)
+   (or
+    (eq (org-element-type (org-element-property :parent (org-element-at-point))) 'section)
+    (eq (org-element-type (org-element-property :parent (org-element-at-point))) 'item)
+    )
+   ))
+```
+
+![preview](./screenshot.png)
 
 # Customizing the Face
 

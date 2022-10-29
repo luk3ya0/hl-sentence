@@ -98,9 +98,12 @@
 (defun plainp ()
   "Check current sentence is paragraph and it's parent is section."
   (and
-  (eq (org-element-type (org-element-at-point)) 'paragraph)
-  (eq (org-element-type (org-element-property :parent (org-element-at-point))) 'section)
-  ))
+   (eq (org-element-type (org-element-at-point)) 'paragraph)
+   (or
+    (eq (org-element-type (org-element-property :parent (org-element-at-point))) 'section)
+    (eq (org-element-type (org-element-property :parent (org-element-at-point))) 'item)
+    )
+   ))
 
 (defun hl-sentence-current ()
   "Highlight current sentence."
