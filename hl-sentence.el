@@ -1,11 +1,6 @@
-;;; hl-sentence.el --- highlight a sentence based on customizable face
+;;; hl-sentence.el --- Highlight a sentence based on customizable face
 
 ;; Copyright (c) 2011 Donald Ephraim Curtis
-
-;; Author: Donald Ephraim Curtis <dcurtis@milkbox.net>
-;; URL: http://github.com/milkypostman/hl-sentence
-;; Version: 3
-;; Keywords: highlighting
 
 ;; This file is not part of GNU Emacs.
 
@@ -45,14 +40,17 @@
 ;;
 ;; This mode started out as a bit of elisp at
 ;; http://www.emacswiki.org/emacs/SentenceHighlight by Aaron Hawley.
-
 ;;; Code:
+(require 'org)
+(require 'org-element)
+(require 'subr-x)			; Compatibility
+
 (defgroup hl-sentence nil
   "Highlight the current sentence."
   :group 'convenience)
 
 ;;;###autoload
-(defface hl-sentence '((t :inherit highlight))
+(defface hl-sentence '((t :inherit nil :background nil :foreground "wheat3"))
   "The face used to highlight the current sentence."
   :group 'hl-sentence)
 
@@ -62,7 +60,16 @@
     (unless (= (point) (point-max))
       (forward-char))
     (backward-sentence)
+    ;; (org-backward-sentence)
     (point)))
+
+(defun whatface ()
+  "Check if in at the source block."
+  (format "%s" (org-element-type (org-element-at-point))))
+
+(defun highlight-p()
+  "Check highlight or not."
+  )
 
 (defun hl-sentence-end-pos ()
   "Return the point of the end of a sentence."
@@ -71,6 +78,8 @@
       (forward-char))
     (backward-sentence)
     (forward-sentence)
+    ;; (org-forward-sentence)
+    ;; (org-backward-sentence)
     (point)))
 
 (defvar hl-sentence-extent nil
@@ -80,26 +89,35 @@
 (define-minor-mode hl-sentence-mode
   "Enable highlighting of currentent sentence."
   :init-value nil
+  (message (whatface))
   (if hl-sentence-mode
       (add-hook 'post-command-hook 'hl-sentence-current nil t)
     (move-overlay hl-sentence-extent 0 0 (current-buffer))
     (remove-hook 'post-command-hook 'hl-sentence-current t)))
 
+(defun plainp ()
+  "Check current sentence is paragraph and it's parent is section."
+  (and
+  (eq (org-element-type (org-element-at-point)) 'paragraph)
+  (eq (org-element-type (org-element-property :parent (org-element-at-point))) 'section)
+  ))
+
 (defun hl-sentence-current ()
   "Highlight current sentence."
-  (and hl-sentence-mode (> (buffer-size) 0)
+  (and hl-sentence-mode
+       (plainp)
+       (> (buffer-size) 0)
        (boundp 'hl-sentence-extent)
        hl-sentence-extent
        (move-overlay hl-sentence-extent
-		     (hl-sentence-begin-pos)
-		     (hl-sentence-end-pos)
-		     (current-buffer))))
+                     (hl-sentence-begin-pos)
+                     (hl-sentence-end-pos)
+                     (current-buffer))))
 
 (setq hl-sentence-extent (make-overlay 0 0))
 (overlay-put hl-sentence-extent 'face 'hl-sentence)
 
+(add-hook 'org-mode 'hl-sentence-mode)
+
 (provide 'hl-sentence)
-;; Local Variables:
-;; indent-tabs-mode: nil
-;; End:
 ;;; hl-sentence.el ends here
