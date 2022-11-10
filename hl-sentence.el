@@ -41,16 +41,17 @@
 ;; This mode started out as a bit of elisp at
 ;; http://www.emacswiki.org/emacs/SentenceHighlight by Aaron Hawley.
 ;;; Code:
-(require 'org)
 (require 'org-element)
-(require 'subr-x)			; Compatibility
+(require 'subr-x)  ; Compatibility
 
 (defgroup hl-sentence nil
   "Highlight the current sentence."
   :group 'convenience)
 
 ;;;###autoload
-(defface hl-sentence '((t :inherit nil :background nil :foreground "wheat3"))
+(defface hl-sentence '((t :inherit nil
+                        :background nil
+                        :foreground "wheat3"))
   "The face used to highlight the current sentence."
   :group 'hl-sentence)
 
@@ -60,16 +61,7 @@
     (unless (= (point) (point-max))
       (forward-char))
     (backward-sentence)
-    ;; (org-backward-sentence)
     (point)))
-
-(defun whatface ()
-  "Check if in at the source block."
-  (format "%s" (org-element-type (org-element-at-point))))
-
-(defun highlight-p()
-  "Check highlight or not."
-  )
 
 (defun hl-sentence-end-pos ()
   "Return the point of the end of a sentence."
@@ -78,8 +70,6 @@
       (forward-char))
     (backward-sentence)
     (forward-sentence)
-    ;; (org-forward-sentence)
-    ;; (org-backward-sentence)
     (point)))
 
 (defvar hl-sentence-extent nil
@@ -89,7 +79,6 @@
 (define-minor-mode hl-sentence-mode
   "Enable highlighting of currentent sentence."
   :init-value nil
-  (message (whatface))
   (if hl-sentence-mode
       (add-hook 'post-command-hook 'hl-sentence-current nil t)
     (move-overlay hl-sentence-extent 0 0 (current-buffer))
@@ -102,8 +91,7 @@
    (or
     (eq (org-element-type (org-element-property :parent (org-element-at-point))) 'section)
     (eq (org-element-type (org-element-property :parent (org-element-at-point))) 'item)
-    )
-   ))
+    )))
 
 (defun hl-sentence-current ()
   "Highlight current sentence."
